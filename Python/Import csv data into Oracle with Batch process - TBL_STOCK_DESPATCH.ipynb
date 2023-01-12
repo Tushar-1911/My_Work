@@ -1,0 +1,742 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d5419bdd",
+   "metadata": {},
+   "source": [
+    "# IMPORT MULTIPLE FILES INTO ORACLE DB"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a5c1a74",
+   "metadata": {},
+   "source": [
+    "CONNECTION TO ORACLE AND IMPORT REQUIRE LIBRARIES"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "2353d896",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "conected to oracle db\n",
+      "You are connected: \n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import glob\n",
+    "import os\n",
+    "import cx_Oracle\n",
+    "from cx_Oracle import DatabaseError\n",
+    "dsn_tns = cx_Oracle.makedsn(' Hostname ', ' Port ', service_name=' Service Name ')\n",
+    "con = cx_Oracle.connect(user='Username', password='Password', dsn=dsn_tns)\n",
+    "\n",
+    "print(\"conected to oracle db\")\n",
+    "\n",
+    "\n",
+    "cursor = conn.cursor()\n",
+    "\n",
+    "cursor.execute(\"\"\"ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MM-YYYY HH24:MI:SS'\n",
+    "                                    NLS_LANGUAGE = AMERICAN\"\"\")\n",
+    "\n",
+    "print('You are connected: ')\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f37c15c9",
+   "metadata": {},
+   "source": [
+    "DROP EXISTING TABLE IN ORACLE DB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "6873c153",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Temporary table dropped!!! \n"
+     ]
+    }
+   ],
+   "source": [
+    "q=\"\"\"Drop table XTEMP_STOCK_DESPATCH\"\"\"\n",
+    "cursor.execute(q)\n",
+    "conn.commit()\n",
+    "\n",
+    "print('Temporary table dropped!!! ')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "08a54eea",
+   "metadata": {},
+   "source": [
+    "CREATE NEW TABLE IN ORACLE DB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "cf98abf3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Temporary table created!!! \n"
+     ]
+    }
+   ],
+   "source": [
+    "q=\"\"\"CREATE TABLE XTEMP_STOCK_DESPATCH\n",
+    "           (   ID VARCHAR2(20 CHAR)\n",
+    "               , ITEM_ID VARCHAR2(20 CHAR)\n",
+    "               , SKU VARCHAR2(20 CHAR)\n",
+    "               , ORDER_NO VARCHAR2(20 CHAR)\n",
+    "               , PHYSICAL_STOCK_ID VARCHAR2(20 CHAR)\n",
+    "               , ROUTING_BARCODE VARCHAR2(50 CHAR)\n",
+    "               , QTY NUMBER\n",
+    "               , SHIPMENT_ID VARCHAR2(20 CHAR))\"\"\"\n",
+    "cursor.execute(q)\n",
+    "conn.commit()\n",
+    "\n",
+    "print('Temporary table created!!! ')\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "20add736",
+   "metadata": {},
+   "source": [
+    "IMPORT MULTIPLE FILES INTO DATAFRAME"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "e38ea163",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['W://PlanningAndMI//MI//020 DEVELOPMENT & TOOLS//Tushar//Access_db_exports//tbl_StockDespatch_01.txt',\n",
+       " 'W://PlanningAndMI//MI//020 DEVELOPMENT & TOOLS//Tushar//Access_db_exports//tbl_StockDespatch_02.txt',\n",
+       " 'W://PlanningAndMI//MI//020 DEVELOPMENT & TOOLS//Tushar//Access_db_exports//tbl_StockDespatch_03.txt',\n",
+       " 'W://PlanningAndMI//MI//020 DEVELOPMENT & TOOLS//Tushar//Access_db_exports//tbl_StockDespatch_04.txt']"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "csv_file = 'W://PlanningAndMI//MI//020 DEVELOPMENT & TOOLS//Tushar//Access_db_exports//tbl_StockDespatch_{:02d}.txt'\n",
+    "file_list = [csv_file.format(n) for n in range(1,5)]  \n",
+    "file_list"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "424ab0e8",
+   "metadata": {},
+   "source": [
+    "IMPORT MULTIPLE FILES DATA INTO DATAFRAME"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "f57887be",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 16171158 entries, 0 to 16171157\n",
+      "Data columns (total 8 columns):\n",
+      " #   Column             Dtype \n",
+      "---  ------             ----- \n",
+      " 0   ID                 int64 \n",
+      " 1   ITEM_ID            int64 \n",
+      " 2   SKU                int64 \n",
+      " 3   ORDER_NO           int64 \n",
+      " 4   PHYSICAL_STOCK_ID  int64 \n",
+      " 5   ROUTING_BARCODE    object\n",
+      " 6   Qty                int64 \n",
+      " 7   SHIPMENT_ID        int64 \n",
+      "dtypes: int64(7), object(1)\n",
+      "memory usage: 2.1 GB\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "df_from_each_file = (pd.read_csv(f) for f in file_list)\n",
+    "csv_data   = pd.concat(df_from_each_file, ignore_index=True)\n",
+    "csv_data.head()\n",
+    "csv_data.info(memory_usage=\"deep\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1f32bfd",
+   "metadata": {},
+   "source": [
+    "CHECK THE DATAFRAME"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "5f486526",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>ID</th>\n",
+       "      <th>ITEM_ID</th>\n",
+       "      <th>SKU</th>\n",
+       "      <th>ORDER_NO</th>\n",
+       "      <th>PHYSICAL_STOCK_ID</th>\n",
+       "      <th>ROUTING_BARCODE</th>\n",
+       "      <th>Qty</th>\n",
+       "      <th>SHIPMENT_ID</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>213709857</td>\n",
+       "      <td>3029780</td>\n",
+       "      <td>60447682006</td>\n",
+       "      <td>5267319584</td>\n",
+       "      <td>395325286</td>\n",
+       "      <td>45214138_20220928164231</td>\n",
+       "      <td>1</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>213709858</td>\n",
+       "      <td>3291505</td>\n",
+       "      <td>60493957006</td>\n",
+       "      <td>5268904159</td>\n",
+       "      <td>398009489</td>\n",
+       "      <td>45320757_20220928164231</td>\n",
+       "      <td>1</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>213709859</td>\n",
+       "      <td>2534379</td>\n",
+       "      <td>60201875005</td>\n",
+       "      <td>5262420165</td>\n",
+       "      <td>382521501</td>\n",
+       "      <td>45597825_20220928164231</td>\n",
+       "      <td>3</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>213709860</td>\n",
+       "      <td>3129251</td>\n",
+       "      <td>60474387006</td>\n",
+       "      <td>5268922063</td>\n",
+       "      <td>398009748</td>\n",
+       "      <td>45320761_20220928164231</td>\n",
+       "      <td>1</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>213709861</td>\n",
+       "      <td>3077019</td>\n",
+       "      <td>60457452001</td>\n",
+       "      <td>5285486779</td>\n",
+       "      <td>435472834</td>\n",
+       "      <td>45865434_20220928164231</td>\n",
+       "      <td>7</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171153</th>\n",
+       "      <td>208749603</td>\n",
+       "      <td>3523898</td>\n",
+       "      <td>60533429003</td>\n",
+       "      <td>5255830126</td>\n",
+       "      <td>451229905</td>\n",
+       "      <td>7014784308_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171154</th>\n",
+       "      <td>208749604</td>\n",
+       "      <td>3570681</td>\n",
+       "      <td>60537157005</td>\n",
+       "      <td>5255825534</td>\n",
+       "      <td>451229931</td>\n",
+       "      <td>7014784322_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171155</th>\n",
+       "      <td>208749605</td>\n",
+       "      <td>3570679</td>\n",
+       "      <td>60537157003</td>\n",
+       "      <td>5255832438</td>\n",
+       "      <td>451230045</td>\n",
+       "      <td>7014784995_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171156</th>\n",
+       "      <td>208749606</td>\n",
+       "      <td>3651829</td>\n",
+       "      <td>60545699001</td>\n",
+       "      <td>5255830679</td>\n",
+       "      <td>451229940</td>\n",
+       "      <td>7014784391_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171157</th>\n",
+       "      <td>208749568</td>\n",
+       "      <td>3685611</td>\n",
+       "      <td>60548871005</td>\n",
+       "      <td>5255837996</td>\n",
+       "      <td>451230071</td>\n",
+       "      <td>7014785992_20220827235437</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857951</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>16171158 rows × 8 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                 ID  ITEM_ID          SKU    ORDER_NO  PHYSICAL_STOCK_ID  \\\n",
+       "0         213709857  3029780  60447682006  5267319584          395325286   \n",
+       "1         213709858  3291505  60493957006  5268904159          398009489   \n",
+       "2         213709859  2534379  60201875005  5262420165          382521501   \n",
+       "3         213709860  3129251  60474387006  5268922063          398009748   \n",
+       "4         213709861  3077019  60457452001  5285486779          435472834   \n",
+       "...             ...      ...          ...         ...                ...   \n",
+       "16171153  208749603  3523898  60533429003  5255830126          451229905   \n",
+       "16171154  208749604  3570681  60537157005  5255825534          451229931   \n",
+       "16171155  208749605  3570679  60537157003  5255832438          451230045   \n",
+       "16171156  208749606  3651829  60545699001  5255830679          451229940   \n",
+       "16171157  208749568  3685611  60548871005  5255837996          451230071   \n",
+       "\n",
+       "                    ROUTING_BARCODE  Qty  SHIPMENT_ID  \n",
+       "0           45214138_20220928164231    1       749930  \n",
+       "1           45320757_20220928164231    1       749930  \n",
+       "2           45597825_20220928164231    3       749930  \n",
+       "3           45320761_20220928164231    1       749930  \n",
+       "4           45865434_20220928164231    7       749930  \n",
+       "...                             ...  ...          ...  \n",
+       "16171153  7014784308_20220827235844    1       857948  \n",
+       "16171154  7014784322_20220827235844    1       857948  \n",
+       "16171155  7014784995_20220827235844    1       857948  \n",
+       "16171156  7014784391_20220827235844    1       857948  \n",
+       "16171157  7014785992_20220827235437    1       857951  \n",
+       "\n",
+       "[16171158 rows x 8 columns]"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "csv_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bd6d0bc6",
+   "metadata": {},
+   "source": [
+    "CHANGE DATATYPE"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "04fd92c5",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Inserted data into dataframe....\n"
+     ]
+    }
+   ],
+   "source": [
+    "data = []\n",
+    "#csv_data['Timestamp']= pd.to_datetime(csv_data['Timestamp']).dt.strftime('%d-%m-%Y %H:%M:%S')\n",
+    "csv_data = csv_data.astype({'ID':str\n",
+    "                            , 'ITEM_ID':str\n",
+    "                            , 'SKU':str\n",
+    "                            , 'ORDER_NO':str\n",
+    "                            , 'PHYSICAL_STOCK_ID':str\n",
+    "                            , 'ROUTING_BARCODE':str\n",
+    "                            , 'Qty':int\n",
+    "                            , 'SHIPMENT_ID':str})\n",
+    "#csv_data['Creation Time']=pd.to_datetime(csv_data['Creation Time']).dt.strftime('%d-%m-%Y %H:%M:%S')\n",
+    "print('Inserted data into dataframe....')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "62afa378",
+   "metadata": {},
+   "source": [
+    "CHECK THE DATAFRAME"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "486fcb88",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>ID</th>\n",
+       "      <th>ITEM_ID</th>\n",
+       "      <th>SKU</th>\n",
+       "      <th>ORDER_NO</th>\n",
+       "      <th>PHYSICAL_STOCK_ID</th>\n",
+       "      <th>ROUTING_BARCODE</th>\n",
+       "      <th>Qty</th>\n",
+       "      <th>SHIPMENT_ID</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>213709857</td>\n",
+       "      <td>3029780</td>\n",
+       "      <td>60447682006</td>\n",
+       "      <td>5267319584</td>\n",
+       "      <td>395325286</td>\n",
+       "      <td>45214138_20220928164231</td>\n",
+       "      <td>1</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>213709858</td>\n",
+       "      <td>3291505</td>\n",
+       "      <td>60493957006</td>\n",
+       "      <td>5268904159</td>\n",
+       "      <td>398009489</td>\n",
+       "      <td>45320757_20220928164231</td>\n",
+       "      <td>1</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>213709859</td>\n",
+       "      <td>2534379</td>\n",
+       "      <td>60201875005</td>\n",
+       "      <td>5262420165</td>\n",
+       "      <td>382521501</td>\n",
+       "      <td>45597825_20220928164231</td>\n",
+       "      <td>3</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>213709860</td>\n",
+       "      <td>3129251</td>\n",
+       "      <td>60474387006</td>\n",
+       "      <td>5268922063</td>\n",
+       "      <td>398009748</td>\n",
+       "      <td>45320761_20220928164231</td>\n",
+       "      <td>1</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>213709861</td>\n",
+       "      <td>3077019</td>\n",
+       "      <td>60457452001</td>\n",
+       "      <td>5285486779</td>\n",
+       "      <td>435472834</td>\n",
+       "      <td>45865434_20220928164231</td>\n",
+       "      <td>7</td>\n",
+       "      <td>749930</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171153</th>\n",
+       "      <td>208749603</td>\n",
+       "      <td>3523898</td>\n",
+       "      <td>60533429003</td>\n",
+       "      <td>5255830126</td>\n",
+       "      <td>451229905</td>\n",
+       "      <td>7014784308_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171154</th>\n",
+       "      <td>208749604</td>\n",
+       "      <td>3570681</td>\n",
+       "      <td>60537157005</td>\n",
+       "      <td>5255825534</td>\n",
+       "      <td>451229931</td>\n",
+       "      <td>7014784322_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171155</th>\n",
+       "      <td>208749605</td>\n",
+       "      <td>3570679</td>\n",
+       "      <td>60537157003</td>\n",
+       "      <td>5255832438</td>\n",
+       "      <td>451230045</td>\n",
+       "      <td>7014784995_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171156</th>\n",
+       "      <td>208749606</td>\n",
+       "      <td>3651829</td>\n",
+       "      <td>60545699001</td>\n",
+       "      <td>5255830679</td>\n",
+       "      <td>451229940</td>\n",
+       "      <td>7014784391_20220827235844</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857948</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16171157</th>\n",
+       "      <td>208749568</td>\n",
+       "      <td>3685611</td>\n",
+       "      <td>60548871005</td>\n",
+       "      <td>5255837996</td>\n",
+       "      <td>451230071</td>\n",
+       "      <td>7014785992_20220827235437</td>\n",
+       "      <td>1</td>\n",
+       "      <td>857951</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>16171158 rows × 8 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                 ID  ITEM_ID          SKU    ORDER_NO PHYSICAL_STOCK_ID  \\\n",
+       "0         213709857  3029780  60447682006  5267319584         395325286   \n",
+       "1         213709858  3291505  60493957006  5268904159         398009489   \n",
+       "2         213709859  2534379  60201875005  5262420165         382521501   \n",
+       "3         213709860  3129251  60474387006  5268922063         398009748   \n",
+       "4         213709861  3077019  60457452001  5285486779         435472834   \n",
+       "...             ...      ...          ...         ...               ...   \n",
+       "16171153  208749603  3523898  60533429003  5255830126         451229905   \n",
+       "16171154  208749604  3570681  60537157005  5255825534         451229931   \n",
+       "16171155  208749605  3570679  60537157003  5255832438         451230045   \n",
+       "16171156  208749606  3651829  60545699001  5255830679         451229940   \n",
+       "16171157  208749568  3685611  60548871005  5255837996         451230071   \n",
+       "\n",
+       "                    ROUTING_BARCODE  Qty SHIPMENT_ID  \n",
+       "0           45214138_20220928164231    1      749930  \n",
+       "1           45320757_20220928164231    1      749930  \n",
+       "2           45597825_20220928164231    3      749930  \n",
+       "3           45320761_20220928164231    1      749930  \n",
+       "4           45865434_20220928164231    7      749930  \n",
+       "...                             ...  ...         ...  \n",
+       "16171153  7014784308_20220827235844    1      857948  \n",
+       "16171154  7014784322_20220827235844    1      857948  \n",
+       "16171155  7014784995_20220827235844    1      857948  \n",
+       "16171156  7014784391_20220827235844    1      857948  \n",
+       "16171157  7014785992_20220827235437    1      857951  \n",
+       "\n",
+       "[16171158 rows x 8 columns]"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "csv_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "082e10d2",
+   "metadata": {},
+   "source": [
+    "IMPORT DATAFRAME INTO ORACLE DB TABLE"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "6c1a2549",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Inserting data into table....\n",
+      "data loaded into the table successfully!!!\n"
+     ]
+    }
+   ],
+   "source": [
+    "print('Inserting data into table....')\n",
+    "\n",
+    "batch_size= 4042789.5\n",
+    "            \n",
+    "\n",
+    "for i,line in csv_data.iterrows():\n",
+    "    sql=\"\"\"insert into XTEMP_STOCK_DESPATCH (   ID\n",
+    "                                               , ITEM_ID\n",
+    "                                               , SKU\n",
+    "                                               , ORDER_NO\n",
+    "                                               , PHYSICAL_STOCK_ID\n",
+    "                                               , ROUTING_BARCODE\n",
+    "                                               , QTY\n",
+    "                                               , SHIPMENT_ID\n",
+    "                                             ) \n",
+    "            values (:0,:1,:2,:3,:04,:05,:06,:07)\"\"\"\n",
+    "    data.append((line[0],line[1],line[2],line[3],line[4],line[5],line[6],line[7]))\n",
+    "    if len(data) % batch_size == 0:\n",
+    "        cursor.executemany(sql, data)\n",
+    "        data = []        \n",
+    "    \n",
+    "        # the connection is not autocommitted by default, so we must commit to save our changes\n",
+    "        \n",
+    "#     if data:\n",
+    "#         cursor.executemany(sql, data)\n",
+    "        conn.commit()\n",
+    "\n",
+    "print('data loaded into the table successfully!!!') "
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
