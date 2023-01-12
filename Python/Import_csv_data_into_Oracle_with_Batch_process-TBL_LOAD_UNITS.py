@@ -1,0 +1,172 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "de2901ba",
+   "metadata": {},
+   "source": [
+    "# IMPORT CSV INTO ORACLE DB "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2ad83004",
+   "metadata": {},
+   "source": [
+    "CONNECTION TO ORACLE AND IMPORT REQUIRE LIBRARIES"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1269fa08",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import glob\n",
+    "import os\n",
+    "import cx_Oracle\n",
+    "from cx_Oracle import DatabaseError\n",
+    "dsn_tns = cx_Oracle.makedsn(' Hostname ', ' Port ', service_name=' Service Name ')\n",
+    "con = cx_Oracle.connect(user='Username', password='Password', dsn=dsn_tns)\n",
+    "\n",
+    "print(\"conected to oracle db\")\n",
+    "\n",
+    "\n",
+    "cursor = conn.cursor()\n",
+    "\n",
+    "cursor.execute(\"\"\"ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MM-YYYY HH24:MI:SS'\n",
+    "                                    NLS_LANGUAGE = AMERICAN\"\"\")\n",
+    "\n",
+    "print('You are connected: ')\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ef26fad",
+   "metadata": {},
+   "source": [
+    "CREATE TABLE IN ORACLE DB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7d33a537",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# q=\"\"\"CREATE TABLE XTEMP_LOAD_UNITS\n",
+    "#            (   UNIT_LICENCE_PLATE VARCHAR2(50 CHAR)\n",
+    "#              , MODIFICATION_TIME DATE\n",
+    "#              , PARENT_LP VARCHAR2(50 CHAR)\n",
+    "#              , HANDLING_TYPE_NAME VARCHAR2(20 CHAR)\n",
+    "#              , URN VARCHAR2(50 CHAR))\"\"\"\n",
+    "# cursor.execute(q)\n",
+    "# conn.commit()\n",
+    "\n",
+    "# print('Temporary table created!!! ')\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "31cb8322",
+   "metadata": {},
+   "source": [
+    "IMPORT CSV INTO DATAFRAME AND CHANGE DATA TYPES\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "93d4ef79",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "FILE PATH = \"W:\\\\PlanningAndMI\\\\MI\\\\020 DEVELOPMENT & TOOLS\\\\Tushar\\\\Access_db_exports\\\\_Export_Load_Units_2907.txt\"\n",
+    "csv_data = pd.read_csv( FILE PATH ,index_col=False,delimiter= '|')\n",
+    "#csv_data.head()\n",
+    "data = []\n",
+    "csv_data['Modification Time']= pd.to_datetime(csv_data['Modification Time']).dt.strftime('%d-%m-%Y %H:%M:%S')\n",
+    "csv_data = csv_data.astype({'Unit Licence Plate':str, 'Parent LP':str})\n",
+    "\n",
+    "print('Inserted data into dataframe....')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d9b054f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "csv_data.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba326392",
+   "metadata": {},
+   "source": [
+    "INSERT DATAFRAME INTO ORACLE DB TABLE"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "463ac140",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print('Inserting data into table....')\n",
+    "\n",
+    "batch_size= 16737.5\n",
+    "\n",
+    "for i,line in csv_data.iterrows():\n",
+    "    sql=\"\"\"insert into XTEMP_LOAD_UNITS (   UNIT_LICENCE_PLATE\n",
+    "                                               , MODIFICATION_TIME\n",
+    "                                               , PARENT_LP\n",
+    "                                               , HANDLING_TYPE_NAME\n",
+    "                                               , URN\n",
+    "                                               , TYPE\n",
+    "                                                ) \n",
+    "            values (:0,:1,:2,:3,:4,:5)\"\"\"\n",
+    "    data.append((line[0],line[1],line[2],line[3]))\n",
+    "    if len(data) % batch_size == 0:\n",
+    "        cursor.executemany(sql, data)\n",
+    "        data = []        \n",
+    "    \n",
+    "        # the connection is not autocommitted by default, so we must commit to save our changes\n",
+    "        \n",
+    "#     if data:\n",
+    "#         cursor.executemany(sql, data)\n",
+    "        conn.commit()\n",
+    "\n",
+    "print('data loaded into the table successfully!!!') "
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
