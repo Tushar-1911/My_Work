@@ -1,0 +1,23 @@
+{
+    "now": "2023-01-23T07:48:28.442Z",
+    "perfNow": 353752.5,
+    "diagnosticCorrelation": "42896a35-a24f-4e84-923c-23e4615cfd63",
+    "source": "DownloadSupportFiles",
+    "environment": {
+        "productName": "a365",
+        "buildVersion": "23.0115.15",
+        "environmentType": 9,
+        "resourceName": "asaworkspaceg3xbtcv",
+        "resourceRegion": "australiaeast",
+        "resourceGroup": "data-engineering-synapse-g3xbtcv",
+        "subscriptionId": "ab86fe1a-fb67-4bb1-a06b-5fc6d223eccd",
+        "sessionId": "Gp73+",
+        "operationId": "3JqrG",
+        "gitType": "live",
+        "loggingKey": false
+    },
+    "additionalInfo": {
+        "selectedResource": "Write User Profile Data to ASA_demo",
+        "selectedResourceType": "pipeline"
+    }
+}
