@@ -1,0 +1,11 @@
+{
+    "name": "asakeyvaultg3xbtcv",
+    "type": "Microsoft.Synapse/workspaces/linkedservices",
+    "properties": {
+        "annotations": [],
+        "type": "AzureKeyVault",
+        "typeProperties": {
+            "baseUrl": "https://asakeyvaultg3xbtcv.vault.azure.net/"
+        }
+    }
+}
