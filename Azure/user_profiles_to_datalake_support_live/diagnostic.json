@@ -1,0 +1,23 @@
+{
+    "now": "2023-01-23T07:45:08.054Z",
+    "perfNow": 153364.09999999404,
+    "diagnosticCorrelation": "351ff8c4-30c0-4984-b410-b5b0f7f098bd",
+    "source": "DownloadSupportFiles",
+    "environment": {
+        "productName": "a365",
+        "buildVersion": "23.0115.15",
+        "environmentType": 9,
+        "resourceName": "asaworkspaceg3xbtcv",
+        "resourceRegion": "australiaeast",
+        "resourceGroup": "data-engineering-synapse-g3xbtcv",
+        "subscriptionId": "ab86fe1a-fb67-4bb1-a06b-5fc6d223eccd",
+        "sessionId": "Gp73+",
+        "operationId": "3JqrG",
+        "gitType": "live",
+        "loggingKey": false
+    },
+    "additionalInfo": {
+        "selectedResource": "user_profiles_to_datalake",
+        "selectedResourceType": "dataflow"
+    }
+}
