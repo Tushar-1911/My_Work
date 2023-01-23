@@ -1,0 +1,73 @@
+{
+    "name": "asal400_december_sales",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "asaworkspaceg3xbtcv-WorkspaceDefaultStorage",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "sale-20161230-snappy.parquet",
+                "folderPath": "campaign-analytics",
+                "fileSystem": "wwi-02"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": [
+            {
+                "name": "TransactionId",
+                "type": "UTF8"
+            },
+            {
+                "name": "CustomerId",
+                "type": "INT32"
+            },
+            {
+                "name": "ProductId",
+                "type": "INT_16"
+            },
+            {
+                "name": "Quantity",
+                "type": "INT_8"
+            },
+            {
+                "name": "Price",
+                "type": "DECIMAL",
+                "precision": 38,
+                "scale": 18
+            },
+            {
+                "name": "TotalAmount",
+                "type": "DECIMAL",
+                "precision": 38,
+                "scale": 18
+            },
+            {
+                "name": "TransactionDate",
+                "type": "INT32"
+            },
+            {
+                "name": "ProfitAmount",
+                "type": "DECIMAL",
+                "precision": 38,
+                "scale": 18
+            },
+            {
+                "name": "Hour",
+                "type": "INT_8"
+            },
+            {
+                "name": "Minute",
+                "type": "INT_8"
+            },
+            {
+                "name": "StoreId",
+                "type": "INT_16"
+            }
+        ]
+    },
+    "type": "Microsoft.Synapse/workspaces/datasets"
+}
