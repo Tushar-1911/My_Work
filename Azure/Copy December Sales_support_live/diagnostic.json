@@ -1,0 +1,23 @@
+{
+    "now": "2023-01-23T07:50:07.497Z",
+    "perfNow": 452807.90000000596,
+    "diagnosticCorrelation": "fcc217f7-96ee-4e54-87a5-944f704662a2",
+    "source": "DownloadSupportFiles",
+    "environment": {
+        "productName": "a365",
+        "buildVersion": "23.0115.15",
+        "environmentType": 9,
+        "resourceName": "asaworkspaceg3xbtcv",
+        "resourceRegion": "australiaeast",
+        "resourceGroup": "data-engineering-synapse-g3xbtcv",
+        "subscriptionId": "ab86fe1a-fb67-4bb1-a06b-5fc6d223eccd",
+        "sessionId": "Gp73+",
+        "operationId": "3JqrG",
+        "gitType": "live",
+        "loggingKey": false
+    },
+    "additionalInfo": {
+        "selectedResource": "Copy December Sales",
+        "selectedResourceType": "pipeline"
+    }
+}

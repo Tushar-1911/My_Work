@@ -1,0 +1,6 @@
+selected resource name:		Copy December Sales
+selected resource type:		pipeline
+workspace name:			asaworkspaceg3xbtcv
+workspace location:		australiaeast
+subscription id:		ab86fe1a-fb67-4bb1-a06b-5fc6d223eccd
+time of download (UTC):		Mon, 23 Jan 2023 07:50:07 GMT
