@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{C9674DCB-5085-4A16-B785-4C70DD1589BD}") = "import json file in sql db", "import json file in sql db.dtproj", "{C77BB76D-42E3-4E30-93D0-0C7B530A4EE4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Development|Default = Development|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C77BB76D-42E3-4E30-93D0-0C7B530A4EE4}.Development|Default.ActiveCfg = Development
+		{C77BB76D-42E3-4E30-93D0-0C7B530A4EE4}.Development|Default.Build.0 = Development
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9AD7B893-2864-4826-B41B-1D14AC338000}
+	EndGlobalSection
+EndGlobal
